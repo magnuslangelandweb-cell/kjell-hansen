@@ -1,0 +1,13 @@
+{
+  "hotkey": "right ctrl",
+  "model_size": "small.en",
+  "device": "auto",
+  "compute_type_cpu": "int8",
+  "compute_type_gpu": "float16",
+  "sample_rate": 16000,
+  "min_recording_seconds": 0.15,
+  "max_recording_seconds": 60,
+  "injection_method": "paste",
+  "language": "en",
+  "show_recording_indicator": true
+}
