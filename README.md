@@ -194,6 +194,25 @@ drop a shortcut to `LocalDictation.exe` in the folder that opens.
 - **First run is slow**: that's the one-time model download; subsequent
   runs are fully offline and fast.
 
+## Debugging
+
+Because the packaged .exe runs with `--noconsole` (no visible console
+window), all logging goes to a rotating file instead of stdout:
+
+- **From source**: `logs/app.log` in the project root.
+- **Packaged .exe**: `logs/app.log` next to `LocalDictation.exe`.
+
+The tray icon also reflects state at a glance and raises Windows
+notifications for key events:
+- **Gray** = starting up / loading the model
+- **Blue** = idle, ready to record
+- **Red** = recording
+- **Yellow** = an error occurred (check the notification and `logs/app.log`)
+
+Right-click the tray icon for **Open config.json**, **Open logs folder**, and
+**Reload config** (re-reads `config.json` and re-registers the hotkey
+without restarting the app — handy for testing different hotkeys).
+
 ## Manual test checklist
 
 Since this has to run on real Windows hardware with a real microphone, after

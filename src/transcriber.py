@@ -4,6 +4,8 @@ import logging
 import numpy as np
 from faster_whisper import WhisperModel
 
+from paths import MODELS_DIR
+
 logger = logging.getLogger(__name__)
 
 
@@ -29,10 +31,16 @@ class Transcriber:
         faster-whisper only accelerates via CUDA (CTranslate2 has no ROCm/Vulkan
         backend), so on AMD or any non-NVIDIA GPU this will always land on CPU.
         """
+        MODELS_DIR.mkdir(parents=True, exist_ok=True)
+        download_root = str(MODELS_DIR)
+
         if device in ("auto", "cuda"):
             try:
                 model = WhisperModel(
-                    model_size, device="cuda", compute_type=compute_type_gpu
+                    model_size,
+                    device="cuda",
+                    compute_type=compute_type_gpu,
+                    download_root=download_root,
                 )
                 logger.info("Loaded %s on CUDA GPU", model_size)
                 return model, "cuda"
@@ -41,7 +49,12 @@ class Transcriber:
                     raise
                 logger.info("CUDA unavailable (%s), falling back to CPU", exc)
 
-        model = WhisperModel(model_size, device="cpu", compute_type=compute_type_cpu)
+        model = WhisperModel(
+            model_size,
+            device="cpu",
+            compute_type=compute_type_cpu,
+            download_root=download_root,
+        )
         logger.info("Loaded %s on CPU (%s)", model_size, compute_type_cpu)
         return model, "cpu"
 

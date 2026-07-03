@@ -1,11 +1,10 @@
 """Load/save the app's JSON config, seeded from config.example.json on first run."""
 import json
 import shutil
-from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
-CONFIG_PATH = ROOT_DIR / "config.json"
-EXAMPLE_CONFIG_PATH = ROOT_DIR / "config.example.json"
+from paths import APP_DIR, CONFIG_PATH
+
+EXAMPLE_CONFIG_PATH = APP_DIR / "config.example.json"
 
 DEFAULTS = {
     "hotkey": "right ctrl",

@@ -1,6 +1,7 @@
 # Builds a standalone, no-console-window .exe with PyInstaller.
-# The Whisper model is NOT bundled - it downloads on first run into
-# %LOCALAPPDATA%\wisper-clone\models the first time the app records something.
+# The Whisper model is NOT bundled - it downloads into a "models" folder next
+# to the .exe the first time the app transcribes something. Logs go to a
+# "logs" folder next to the .exe too (see src/paths.py).
 #   powershell -ExecutionPolicy Bypass -File build_exe.ps1
 
 $ErrorActionPreference = "Stop"
@@ -19,7 +20,9 @@ if (-not (Test-Path $venvPython)) {
     --paths "src" `
     "src\main.py"
 
+Copy-Item "config.example.json" "dist\config.example.json" -Force
+
 Write-Host ""
 Write-Host "Build complete: dist\LocalDictation.exe"
-Write-Host "Copy config.example.json next to the exe as config.json to customize settings before first run."
+Write-Host "dist\config.example.json was copied alongside it - rename it to config.json to customize settings before first run."
 Write-Host "To run at login, create a shortcut to the exe in: shell:startup"

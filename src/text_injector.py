@@ -67,9 +67,28 @@ def _type_unicode_text(text: str) -> None:
 
 
 # --- Clipboard helpers -------------------------------------------------------
+# The Windows clipboard is a single shared resource - another app (a clipboard
+# manager, an antivirus scanner, etc.) can hold it open for a few ms. Retry
+# briefly instead of letting a transient lock blow up the whole injection.
+
+_CLIPBOARD_RETRIES = 5
+_CLIPBOARD_RETRY_DELAY = 0.05
+
+
+def _open_clipboard_with_retry() -> None:
+    last_exc = None
+    for _ in range(_CLIPBOARD_RETRIES):
+        try:
+            win32clipboard.OpenClipboard()
+            return
+        except Exception as exc:
+            last_exc = exc
+            time.sleep(_CLIPBOARD_RETRY_DELAY)
+    raise last_exc
+
 
 def _read_clipboard_text():
-    win32clipboard.OpenClipboard()
+    _open_clipboard_with_retry()
     try:
         if win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_UNICODETEXT):
             return win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT)
@@ -79,7 +98,7 @@ def _read_clipboard_text():
 
 
 def _write_clipboard_text(text: str) -> None:
-    win32clipboard.OpenClipboard()
+    _open_clipboard_with_retry()
     try:
         win32clipboard.EmptyClipboard()
         win32clipboard.SetClipboardData(win32clipboard.CF_UNICODETEXT, text)
