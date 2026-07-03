@@ -16,7 +16,9 @@ powershell -ExecutionPolicy Bypass -File setup.ps1      # creates .venv, install
 powershell -ExecutionPolicy Bypass -File build_exe.ps1    # optional: PyInstaller --onefile --noconsole build -> dist\LocalDictation.exe
 ```
 
-There is no test suite, linter, or formatter configured in this repo. Validation is manual (see "Manual test checklist" in README.md): run the app, hold the hotkey in a real text field, speak, and confirm the transcribed text is pasted correctly. This requires real Windows hardware with a microphone — it cannot be verified from a headless/non-Windows environment.
+There is no test suite, linter, or formatter configured in this repo. Validation is manual (see "Manual test checklist" in README.md): run the app, hold the hotkey in a real text field, speak, and confirm the transcribed text is pasted correctly.
+
+**Dev environment note**: code is edited/reviewed here (a non-Windows environment) but this app only actually runs on Windows. Claude Code cannot execute or manually test this app in this environment — treat any change as unverified until the user has run it on a real Windows machine with a microphone. Say so explicitly rather than claiming a change "works."
 
 ## Architecture
 
@@ -40,3 +42,12 @@ Threading model: hotkey callbacks run on the `keyboard` library's hook thread; t
 - `text_injector.py` is intentionally Windows-only and fails fast/loudly on import elsewhere; don't add cross-platform shims to it.
 - Config keys live in exactly two places that must stay in sync: `config.py`'s `DEFAULTS` dict and `config.example.json`. When adding a new config option, update both, plus the reference table in README.md.
 - `.gitignore` excludes `config.json` (user-local, generated from the example) and `models/` (Whisper model cache) — never commit either.
+
+## Deliberate non-goals
+
+Don't "helpfully" add these unless explicitly asked — they were considered and left out on purpose:
+
+- **No test suite, linter, or formatter.** This is a small personal tool; don't introduce pytest/ruff/black/CI config speculatively.
+- **No cross-platform support.** Windows-only is intentional (`pywin32`, raw `SendInput`); don't add macOS/Linux shims or abstraction layers for portability.
+- **No GPU acceleration on AMD/non-NVIDIA GPUs.** `faster-whisper`'s CTranslate2 backend only accelerates via CUDA. The `whisper.cpp` + Vulkan path (documented in README.md) is a manual, opt-in alternative requiring a local compiler toolchain — not something to wire in automatically.
+- **No bundling the Whisper model into the `.exe`.** It's downloaded on first run by design, to keep the executable small and startup fast.
